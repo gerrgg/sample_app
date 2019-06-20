@@ -18,9 +18,11 @@ class UsersEditTest < ActionDispatch::IntegrationTest
     assert_template 'users/edit'
   end
 
-  test 'successful edit' do
-    log_in_as(@user)
+  test 'successful edit with friendly forwarding' do
     get edit_user_path(@user)
+    assert_redirected_to login_path
+    log_in_as(@user)
+    assert_redirected_to edit_user_url(@user)
     name = 'greg'
     email = 'greg@aol.com'
     patch user_path(@user), params: { user: { name: name,
@@ -47,5 +49,15 @@ class UsersEditTest < ActionDispatch::IntegrationTest
                                               email: @user.email } }
     assert flash.empty?
     assert_redirected_to root_url
+  end
+
+  test 'should not allow user to be admin via patch request' do
+    log_in_as(@other_user)
+    assert_not @other_user.admin?
+    patch user_path(@other_user), params: { 
+                                    user: { password: 'password',
+                                          password_confirmation: 'password',
+                                          admin: true } }
+    assert_not @other_user.admin?
   end
 end
