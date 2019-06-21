@@ -55,7 +55,7 @@ class User < ApplicationRecord
     end
 
     def activate
-        update_attributes(activated: true, 
+        update_columns(activated: true, 
                           activated_at: Time.zone.now)
 
         
